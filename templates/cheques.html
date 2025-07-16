@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت چک‌ها{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card section-card">
+            <div class="card-header">
+                <h5><i class="fas fa-check"></i> مدیریت چک‌ها</h5>
+            </div>
+            <div class="card-body">
+                <!-- فرم اضافه کردن چک -->
+                <form method="POST" action="{{ url_for('create_cheque') }}" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="cheque_number" class="form-label">شماره چک *</label>
+                                <input type="text" class="form-control" id="cheque_number" name="cheque_number" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="customer_id" class="form-label">مشتری *</label>
+                                <select class="form-control" id="customer_id" name="customer_id" required>
+                                    <option value="">انتخاب مشتری</option>
+                                    {% for customer in customers %}
+                                    <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="bank_id" class="form-label">بانک *</label>
+                                <select class="form-control" id="bank_id" name="bank_id" required>
+                                    <option value="">انتخاب بانک</option>
+                                    {% for bank in banks %}
+                                    <option value="{{ bank.id }}">{{ bank.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">مبلغ *</label>
+                                <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="issue_date" class="form-label">تاریخ صدور *</label>
+                                <input type="text" class="form-control jalali-date" id="issue_date" name="issue_date" required placeholder="۱۴۰۳/۰۱/۰۱">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="due_date" class="form-label">تاریخ سررسید *</label>
+                                <input type="text" class="form-control jalali-date" id="due_date" name="due_date" required placeholder="۱۴۰۳/۰۱/۰۱">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">وضعیت</label>
+                                <select class="form-control" id="status" name="status">
+                                    <option value="در انتظار">در انتظار</option>
+                                    <option value="نقد شده">نقد شده</option>
+                                    <option value="برگشتی">برگشتی</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">توضیحات</label>
+                                <input type="text" class="form-control" id="description" name="description">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> اضافه کردن چک
+                    </button>
+                </form>
+
+                <!-- جدول چک‌ها -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>شماره چک</th>
+                                <th>مشتری</th>
+                                <th>بانک</th>
+                                <th>مبلغ</th>
+                                <th>تاریخ صدور</th>
+                                <th>تاریخ سررسید</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cheque in cheques %}
+                            <tr>
+                                <td>{{ cheque.cheque_number }}</td>
+                                <td>{{ cheque.customer.name if cheque.customer else '-' }}</td>
+                                <td>{{ cheque.bank.name if cheque.bank else '-' }}</td>
+                                <td>{{ "{:,.0f}".format(cheque.amount) }} ریال</td>
+                                <td>{{ cheque.issue_date.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ cheque.due_date.strftime('%Y/%m/%d') }}</td>
+                                <td>
+                                    <span class="badge bg-{% if cheque.status == 'نقد شده' %}success{% elif cheque.status == 'برگشتی' %}danger{% else %}warning{% endif %}">
+                                        {{ cheque.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editCheque({{ cheque.id }}, '{{ cheque.cheque_number }}', {{ cheque.customer_id }}, {{ cheque.bank_id }}, {{ cheque.amount }}, '{{ cheque.issue_date.strftime('%Y/%m/%d') }}', '{{ cheque.due_date.strftime('%Y/%m/%d') }}', '{{ cheque.status }}', '{{ cheque.description or '' }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" onclick="toggleChequeStatus({{ cheque.id }}, '{{ cheque.status }}')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCheque({{ cheque.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">
+                                    هیچ چکی ثبت نشده است
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Cheque Modal -->
+<div class="modal fade" id="editChequeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ویرایش چک</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editChequeForm" method="POST">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_cheque_number" class="form-label">شماره چک *</label>
+                                <input type="text" class="form-control" id="edit_cheque_number" name="cheque_number" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_customer_id" class="form-label">مشتری *</label>
+                                <select class="form-control" id="edit_customer_id" name="customer_id" required>
+                                    {% for customer in customers %}
+                                    <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_bank_id" class="form-label">بانک *</label>
+                                <select class="form-control" id="edit_bank_id" name="bank_id" required>
+                                    {% for bank in banks %}
+                                    <option value="{{ bank.id }}">{{ bank.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_amount" class="form-label">مبلغ *</label>
+                                <input type="number" class="form-control" id="edit_amount" name="amount" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_issue_date" class="form-label">تاریخ صدور *</label>
+                                <input type="text" class="form-control jalali-date" id="edit_issue_date" name="issue_date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_due_date" class="form-label">تاریخ سررسید *</label>
+                                <input type="text" class="form-control jalali-date" id="edit_due_date" name="due_date" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_status" class="form-label">وضعیت</label>
+                                <select class="form-control" id="edit_status" name="status">
+                                    <option value="در انتظار">در انتظار</option>
+                                    <option value="نقد شده">نقد شده</option>
+                                    <option value="برگشتی">برگشتی</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_description" class="form-label">توضیحات</label>
+                                <input type="text" class="form-control" id="edit_description" name="description">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editCheque(id, cheque_number, customer_id, bank_id, amount, issue_date, due_date, status, description) {
+    document.getElementById('edit_cheque_number').value = cheque_number;
+    document.getElementById('edit_customer_id').value = customer_id;
+    document.getElementById('edit_bank_id').value = bank_id;
+    document.getElementById('edit_amount').value = amount;
+    document.getElementById('edit_issue_date').value = issue_date;
+    document.getElementById('edit_due_date').value = due_date;
+    document.getElementById('edit_status').value = status;
+    document.getElementById('edit_description').value = description;
+    
+    document.getElementById('editChequeForm').action = `/cheques/${id}/edit`;
+    
+    new bootstrap.Modal(document.getElementById('editChequeModal')).show();
+}
+
+function deleteCheque(id) {
+    if (confirm('آیا از حذف این چک اطمینان دارید؟')) {
+        fetch(`/cheques/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('خطا در حذف چک: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در حذف چک');
+        });
+    }
+}
+
+function toggleChequeStatus(id, currentStatus) {
+    let newStatus;
+    if (currentStatus === 'در انتظار') {
+        newStatus = 'نقد شده';
+    } else if (currentStatus === 'نقد شده') {
+        newStatus = 'برگشتی';
+    } else {
+        newStatus = 'در انتظار';
+    }
+    
+    fetch(`/cheques/${id}/status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({status: newStatus})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('خطا در تغییر وضعیت: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('خطا در تغییر وضعیت');
+    });
+}
+</script>
+{% endblock %}

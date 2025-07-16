@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}بودجه‌بندی{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card section-card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> بودجه‌بندی</h5>
+            </div>
+            <div class="card-body">
+                <!-- فرم اضافه کردن بودجه -->
+                <form method="POST" action="{{ url_for('create_budget') }}" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">دسته‌بندی *</label>
+                                <input type="text" class="form-control" id="category" name="category" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="planned_amount" class="form-label">مبلغ برنامه‌ریزی شده *</label>
+                                <input type="number" class="form-control" id="planned_amount" name="planned_amount" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="period_start" class="form-label">شروع دوره *</label>
+                                <input type="text" class="form-control jalali-date" id="period_start" name="period_start" required placeholder="۱۴۰۳/۰۱/۰۱">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="period_end" class="form-label">پایان دوره *</label>
+                                <input type="text" class="form-control jalali-date" id="period_end" name="period_end" required placeholder="۱۴۰۳/۰۳/۳۰">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">توضیحات</label>
+                                <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus"></i> اضافه کردن بودجه
+                    </button>
+                </form>
+
+                <!-- فرم اضافه کردن بودجه -->
+                <form method="POST" action="{{ url_for('create_budget') }}" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">دسته‌بندی *</label>
+                                <input type="text" class="form-control" id="category" name="category" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="planned_amount" class="form-label">مبلغ برنامه‌ریزی شده *</label>
+                                <input type="number" class="form-control" id="planned_amount" name="planned_amount" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="actual_amount" class="form-label">مبلغ واقعی</label>
+                                <input type="number" class="form-control" id="actual_amount" name="actual_amount" step="0.01" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="period_start" class="form-label">شروع دوره *</label>
+                                <div class="jalali-date-container">
+                                    <input type="text" class="form-control jalali-date" id="period_start" name="period_start" required placeholder="۱۴۰۳/۰۱/۰۱">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="period_end" class="form-label">پایان دوره *</label>
+                                <div class="jalali-date-container">
+                                    <input type="text" class="form-control jalali-date" id="period_end" name="period_end" required placeholder="۱۴۰۳/۰۳/۳۰">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">توضیحات</label>
+                                <input type="text" class="form-control" id="description" name="description">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus"></i> اضافه کردن بودجه
+                    </button>
+                </form>
+
+                <!-- جدول بودجه‌ها -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>دسته‌بندی</th>
+                                <th>مبلغ برنامه‌ریزی شده</th>
+                                <th>مبلغ واقعی</th>
+                                <th>درصد تحقق</th>
+                                <th>شروع دوره</th>
+                                <th>پایان دوره</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for budget in budgets %}
+                            {% set percentage = (budget.actual_amount / budget.planned_amount * 100) if budget.planned_amount > 0 else 0 %}
+                            <tr>
+                                <td>{{ budget.category }}</td>
+                                <td>{{ "{:,.0f}".format(budget.planned_amount) }} ریال</td>
+                                <td>{{ "{:,.0f}".format(budget.actual_amount) }} ریال</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-{% if percentage <= 50 %}danger{% elif percentage <= 80 %}warning{% else %}success{% endif %}" 
+                                             style="width: {{ percentage }}%">
+                                            {{ "%.1f"|format(percentage) }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ budget.period_start.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ budget.period_end.strftime('%Y/%m/%d') }}</td>
+                                <td>
+                                    {% if percentage <= 50 %}
+                                        <span class="badge bg-danger">نیاز به توجه</span>
+                                    {% elif percentage <= 80 %}
+                                        <span class="badge bg-warning">در حال پیگیری</span>
+                                    {% else %}
+                                        <span class="badge bg-success">موفق</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editBudget({{ budget.id }}, '{{ budget.category }}', {{ budget.planned_amount }}, {{ budget.actual_amount }}, '{{ budget.period_start.strftime('%Y/%m/%d') }}', '{{ budget.period_end.strftime('%Y/%m/%d') }}', '{{ budget.description or '' }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteBudget({{ budget.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">
+                                    هیچ بودجه‌ای تعریف نشده است
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Budget Modal -->
+<div class="modal fade" id="editBudgetModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ویرایش بودجه</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editBudgetForm" method="POST">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_category" class="form-label">دسته‌بندی *</label>
+                                <input type="text" class="form-control" id="edit_category" name="category" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_planned_amount" class="form-label">مبلغ برنامه‌ریزی شده *</label>
+                                <input type="number" class="form-control" id="edit_planned_amount" name="planned_amount" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_actual_amount" class="form-label">مبلغ واقعی</label>
+                                <input type="number" class="form-control" id="edit_actual_amount" name="actual_amount" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_period_start" class="form-label">شروع دوره *</label>
+                                <div class="jalali-date-container">
+                                    <input type="text" class="form-control jalali-date" id="edit_period_start" name="period_start" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_period_end" class="form-label">پایان دوره *</label>
+                                <div class="jalali-date-container">
+                                    <input type="text" class="form-control jalali-date" id="edit_period_end" name="period_end" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="edit_description" class="form-label">توضیحات</label>
+                                <input type="text" class="form-control" id="edit_description" name="description">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editBudget(id, category, planned_amount, actual_amount, period_start, period_end, description) {
+    document.getElementById('edit_category').value = category;
+    document.getElementById('edit_planned_amount').value = planned_amount;
+    document.getElementById('edit_actual_amount').value = actual_amount;
+    document.getElementById('edit_period_start').value = period_start;
+    document.getElementById('edit_period_end').value = period_end;
+    document.getElementById('edit_description').value = description;
+    
+    document.getElementById('editBudgetForm').action = `/budgets/${id}/edit`;
+    
+    new bootstrap.Modal(document.getElementById('editBudgetModal')).show();
+}
+
+function deleteBudget(id) {
+    if (confirm('آیا از حذف این بودجه اطمینان دارید؟')) {
+        fetch(`/budgets/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('خطا در حذف بودجه: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در حذف بودجه');
+        });
+    }
+}
+</script>
+{% endblock %}

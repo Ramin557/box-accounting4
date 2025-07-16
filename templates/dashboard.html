@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% block title %}داشبورد حسابداری{% endblock %}
+{% block content %}
+<div class="row">
+    <!-- کارت‌های آماری -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card revenue-card">
+                    <div class="card-body">
+                        <h6 class="card-title">کل درآمد</h6>
+                        <h4 class="mb-0">{{ "{:,.0f}".format(stats.revenue) }} تومان</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card expense-card">
+                    <div class="card-body">
+                        <h6 class="card-title">کل هزینه‌ها</h6>
+                        <h4 class="mb-0">{{ "{:,.0f}".format(stats.total_costs) }} تومان</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card {% if stats.profit_loss >= 0 %}profit-card{% else %}loss-card{% endif %}">
+                    <div class="card-body">
+                        <h6 class="card-title">سود/زیان خالص</h6>
+                        <h4 class="mb-0">{{ "{:,.0f}".format(stats.profit_loss) }} تومان</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card info-card">
+                    <div class="card-body">
+                        <h6 class="card-title">حاشیه سود</h6>
+                        <h4 class="mb-0">
+                            {% if stats.revenue > 0 %}
+                                {{ "{:.1f}".format((stats.profit_loss / stats.revenue) * 100) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- مواد اولیه -->
+<div class="card mb-4">
+    <div class="card-header"><b>مواد اولیه</b></div>
+    <div class="card-body">
+        <form method="post" class="row g-2 mb-3">
+            <input type="hidden" name="form_name" value="material">
+            <div class="col-md-3">
+                <input list="material_names" name="name" class="form-control" placeholder="نام ماده اولیه" required>
+                <datalist id="material_names">
+                    {% for name in material_names %}
+                    <option value="{{ name }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-md-2">
+                <input name="weight" type="number" step="0.01" class="form-control" placeholder="وزن (کیلوگرم)" required>
+            </div>
+            <div class="col-md-2">
+                <input name="cost" type="number" step="0.01" class="form-control" placeholder="هزینه" required>
+            </div>
+            <div class="col-md-3">
+                <div class="jalali-date-container">
+                    <input name="date" type="text" class="form-control jalali-date" placeholder="تاریخ (مثال: 1403/04/25)" pattern="\d{4}/\d{1,2}/\d{1,2}" required>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-success w-100" type="submit">ثبت</button>
+            </div>
+        </form>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>نام</th>
+                    <th>وزن</th>
+                    <th>هزینه</th>
+                    <th>تاریخ</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for material in materials %}
+                <tr>
+                    <td>{{ material.name }}</td>
+                    <td>{{ "{:,.1f}".format(material.weight or 0) }} کیلوگرم</td>
+                    <td>{{ "{:,.0f}".format(material.cost) }} تومان</td>
+                    <td>{{ to_jalali(material.date) }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editMaterial({{ material.id }})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="{{ url_for('delete_record', table='material', id=material.id) }}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">هیچ داده‌ای موجود نیست</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- محصولات تولیدی -->
+<div class="card mb-4">
+    <div class="card-header"><b>محصولات تولیدی</b></div>
+    <div class="card-body">
+        <form method="post" class="row g-2 mb-3">
+            <input type="hidden" name="form_name" value="product">
+            <div class="col-md-4">
+                <input list="product_names" name="name" class="form-control" placeholder="نام محصول" required>
+                <datalist id="product_names">
+                    {% for name in product_names %}
+                    <option value="{{ name }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-md-2">
+                <input name="count" type="number" class="form-control" placeholder="تعداد" required>
+            </div>
+            <div class="col-md-3">
+                <input name="unit_cost" type="number" step="0.01" class="form-control" placeholder="هزینه واحد" required>
+            </div>
+            <div class="col-md-2">
+                <div class="jalali-date-container">
+                    <input name="date" type="text" class="form-control jalali-date" placeholder="تاریخ (1403/04/25)" pattern="\d{4}/\d{1,2}/\d{1,2}" required>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-success w-100" type="submit">ثبت</button>
+            </div>
+        </form>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>نام</th>
+                    <th>تعداد</th>
+                    <th>هزینه واحد</th>
+                    <th>تاریخ</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.count }}</td>
+                    <td>{{ "{:,.0f}".format(product.unit_cost) }} تومان</td>
+                    <td>{{ to_jalali(product.date) }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editProduct({{ product.id }})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="{{ url_for('delete_record', table='product', id=product.id) }}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">هیچ داده‌ای موجود نیست</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- فروش -->
+<div class="card mb-4">
+    <div class="card-header"><b>فروش</b></div>
+    <div class="card-body">
+        <form method="post" class="row g-2 mb-3">
+            <input type="hidden" name="form_name" value="sale">
+            <div class="col-md-4">
+                <input list="product_names" name="name" class="form-control" placeholder="نام محصول" required>
+            </div>
+            <div class="col-md-2">
+                <input name="count" type="number" class="form-control" placeholder="تعداد" required>
+            </div>
+            <div class="col-md-3">
+                <input name="unit_price" type="number" step="0.01" class="form-control" placeholder="قیمت واحد" required>
+            </div>
+            <div class="col-md-2">
+                <div class="jalali-date-container">
+                    <input name="date" type="text" class="form-control jalali-date" placeholder="تاریخ (1403/04/25)" pattern="\d{4}/\d{1,2}/\d{1,2}" required>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-success w-100" type="submit">ثبت</button>
+            </div>
+        </form>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>نام</th>
+                    <th>تعداد</th>
+                    <th>قیمت واحد</th>
+                    <th>تاریخ</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.name }}</td>
+                    <td>{{ sale.count }}</td>
+                    <td>{{ "{:,.0f}".format(sale.unit_price) }} تومان</td>
+                    <td>{{ to_jalali(sale.date) }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editSale({{ sale.id }})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="{{ url_for('delete_record', table='sale', id=sale.id) }}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">هیچ داده‌ای موجود نیست</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- سایر هزینه‌ها -->
+<div class="card mb-4">
+    <div class="card-header"><b>سایر هزینه‌ها</b></div>
+    <div class="card-body">
+        <form method="post" class="row g-2 mb-3">
+            <input type="hidden" name="form_name" value="expense">
+            <div class="col-md-6">
+                <input name="desc" class="form-control" placeholder="شرح هزینه" required>
+            </div>
+            <div class="col-md-3">
+                <input name="amount" type="number" step="0.01" class="form-control" placeholder="مبلغ" required>
+            </div>
+            <div class="col-md-2">
+                <div class="jalali-date-container">
+                    <input name="date" type="text" class="form-control jalali-date" placeholder="تاریخ (1403/04/25)" pattern="\d{4}/\d{1,2}/\d{1,2}" required>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-success w-100" type="submit">ثبت</button>
+            </div>
+        </form>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>شرح</th>
+                    <th>مبلغ</th>
+                    <th>تاریخ</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td>{{ expense.description }}</td>
+                    <td>{{ "{:,.0f}".format(expense.amount) }} تومان</td>
+                    <td>{{ to_jalali(expense.date) }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editExpense({{ expense.id }})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="{{ url_for('delete_record', table='expense', id=expense.id) }}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">هیچ داده‌ای موجود نیست</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- حقوق کارگران -->
+<div class="card mb-4">
+    <div class="card-header"><b>حقوق کارگران</b></div>
+    <div class="card-body">
+        <form method="post" class="row g-2 mb-3">
+            <input type="hidden" name="form_name" value="worker">
+            <div class="col-md-4">
+                <input list="worker_names" name="name" class="form-control" placeholder="نام کارگر" required>
+                <datalist id="worker_names">
+                    {% for name in worker_names %}
+                    <option value="{{ name }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-md-3">
+                <input name="amount" type="number" step="0.01" class="form-control" placeholder="مبلغ" required>
+            </div>
+            <div class="col-md-3">
+                <div class="jalali-date-container">
+                    <input name="date" type="text" class="form-control jalali-date" placeholder="تاریخ (1403/04/25)" pattern="\d{4}/\d{1,2}/\d{1,2}" required>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-success w-100" type="submit">ثبت</button>
+            </div>
+        </form>
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>نام کارگر</th>
+                    <th>مبلغ</th>
+                    <th>تاریخ</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for worker in workers %}
+                <tr>
+                    <td>{{ worker.name }}</td>
+                    <td>{{ "{:,.0f}".format(worker.amount) }} تومان</td>
+                    <td>{{ to_jalali(worker.date) }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editWorker({{ worker.id }})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <a href="{{ url_for('delete_record', table='worker', id=worker.id) }}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">هیچ داده‌ای موجود نیست</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function editMaterial(id) {
+    alert('ویرایش ماده اولیه ' + id + ' - این قابلیت به زودی اضافه خواهد شد');
+}
+
+function editProduct(id) {
+    alert('ویرایش محصول ' + id + ' - این قابلیت به زودی اضافه خواهد شد');
+}
+
+function editSale(id) {
+    alert('ویرایش فروش ' + id + ' - این قابلیت به زودی اضافه خواهد شد');
+}
+
+function editExpense(id) {
+    alert('ویرایش هزینه ' + id + ' - این قابلیت به زودی اضافه خواهد شد');
+}
+
+function editWorker(id) {
+    alert('ویرایش کارگر ' + id + ' - این قابلیت به زودی اضافه خواهد شد');
+}
+</script>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

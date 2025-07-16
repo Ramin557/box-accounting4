@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}مدیریت مشتریان{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card section-card">
+            <div class="card-header">
+                <h5><i class="fas fa-users"></i> مدیریت مشتریان</h5>
+            </div>
+            <div class="card-body">
+                <!-- فرم اضافه کردن مشتری -->
+                <form method="POST" action="{{ url_for('create_customer') }}" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">نام مشتری *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">شماره تلفن</label>
+                                <input type="text" class="form-control" id="phone" name="phone">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">ایمیل</label>
+                                <input type="email" class="form-control" id="email" name="email">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="national_code" class="form-label">کد ملی</label>
+                                <input type="text" class="form-control" id="national_code" name="national_code">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="company_name" class="form-label">نام شرکت</label>
+                                <input type="text" class="form-control" id="company_name" name="company_name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="address" class="form-label">آدرس</label>
+                                <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> اضافه کردن مشتری
+                    </button>
+                </form>
+
+                <!-- جدول مشتریان -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>نام</th>
+                                <th>تلفن</th>
+                                <th>ایمیل</th>
+                                <th>کد ملی</th>
+                                <th>شرکت</th>
+                                <th>تاریخ ایجاد</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customers %}
+                            <tr>
+                                <td>{{ customer.name }}</td>
+                                <td>{{ customer.phone or '-' }}</td>
+                                <td>{{ customer.email or '-' }}</td>
+                                <td>{{ customer.national_code or '-' }}</td>
+                                <td>{{ customer.company_name or '-' }}</td>
+                                <td>{{ customer.created_at.strftime('%Y/%m/%d') if customer.created_at else '-' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editCustomer({{ customer.id }}, '{{ customer.name }}', '{{ customer.phone or '' }}', '{{ customer.email or '' }}', '{{ customer.national_code or '' }}', '{{ customer.company_name or '' }}', '{{ customer.address or '' }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCustomer({{ customer.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">
+                                    هیچ مشتری‌ای ثبت نشده است
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Customer Modal -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ویرایش مشتری</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editCustomerForm" method="POST">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_customer_name" class="form-label">نام و نام خانوادگی *</label>
+                                <input type="text" class="form-control" id="edit_customer_name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_customer_phone" class="form-label">شماره تلفن</label>
+                                <input type="text" class="form-control" id="edit_customer_phone" name="phone">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_customer_email" class="form-label">ایمیل</label>
+                                <input type="email" class="form-control" id="edit_customer_email" name="email">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_customer_national_code" class="form-label">کد ملی</label>
+                                <input type="text" class="form-control" id="edit_customer_national_code" name="national_code">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_customer_company_name" class="form-label">نام شرکت</label>
+                                <input type="text" class="form-control" id="edit_customer_company_name" name="company_name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edit_customer_address" class="form-label">آدرس</label>
+                                <textarea class="form-control" id="edit_customer_address" name="address" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editCustomer(id, name, phone, email, national_code, company_name, address) {
+    document.getElementById('edit_customer_name').value = name;
+    document.getElementById('edit_customer_phone').value = phone;
+    document.getElementById('edit_customer_email').value = email;
+    document.getElementById('edit_customer_national_code').value = national_code;
+    document.getElementById('edit_customer_company_name').value = company_name;
+    document.getElementById('edit_customer_address').value = address;
+    
+    document.getElementById('editCustomerForm').action = `/customers/${id}/edit`;
+    
+    new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
+}
+
+function deleteCustomer(id) {
+    if (confirm('آیا از حذف این مشتری اطمینان دارید؟')) {
+        fetch(`/customers/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('خطا در حذف مشتری: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در حذف مشتری');
+        });
+    }
+}
+</script>
+{% endblock %}

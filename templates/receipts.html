@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}دریافتی‌ها{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card section-card">
+            <div class="card-header">
+                <h5><i class="fas fa-arrow-circle-down text-success"></i> دریافتی‌ها</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    این بخش برای ثبت دریافتی‌های نقدی و غیرنقدی از مشتریان طراحی شده است.
+                </div>
+
+                <!-- جدول دریافتی‌ها -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>شماره رسید</th>
+                                <th>مشتری</th>
+                                <th>مبلغ</th>
+                                <th>تاریخ</th>
+                                <th>روش پرداخت</th>
+                                <th>بانک</th>
+                                <th>توضیحات</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for receipt in receipts %}
+                            <tr>
+                                <td>{{ receipt.receipt_number }}</td>
+                                <td>{{ receipt.customer.name if receipt.customer else '-' }}</td>
+                                <td class="text-success fw-bold">{{ "{:,.0f}".format(receipt.amount) }} ریال</td>
+                                <td>{{ receipt.date.strftime('%Y/%m/%d') }}</td>
+                                <td>
+                                    <span class="badge bg-{% if receipt.payment_method == 'نقد' %}success{% elif receipt.payment_method == 'چک' %}warning{% else %}info{% endif %}">
+                                        {{ receipt.payment_method or 'نامشخص' }}
+                                    </span>
+                                </td>
+                                <td>{{ receipt.bank.name if receipt.bank else '-' }}</td>
+                                <td>{{ receipt.description or '-' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editReceipt({{ receipt.id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteReceipt({{ receipt.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">
+                                    هیچ دریافتی‌ای ثبت نشده است
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editReceipt(id) {
+    alert('ویرایش دریافتی ' + id + ' - این قابلیت به زودی اضافه خواهد شد');
+}
+
+function deleteReceipt(id) {
+    if (confirm('آیا از حذف این دریافتی اطمینان دارید؟')) {
+        fetch(`/receipts/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('خطا در حذف دریافتی: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در حذف دریافتی');
+        });
+    }
+}
+</script>
+{% endblock %}

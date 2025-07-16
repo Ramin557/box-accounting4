@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}گزارشات - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line"></i> گزارشات مالی</h5>
+            </div>
+            <div class="card-body">
+                <!-- Date Filter Form -->
+                <form method="GET" class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label for="start_date" class="form-label">از تاریخ:</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date or '' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="end_date" class="form-label">تا تاریخ:</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date or '' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> اعمال فیلتر
+                            </button>
+                            <a href="{{ url_for('export_pdf') }}?start_date={{ start_date or '' }}&end_date={{ end_date or '' }}" 
+                               class="btn btn-success">
+                                <i class="fas fa-file-pdf"></i> صدور PDF
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Financial Summary -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-calculator"></i> خلاصه مالی</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <td><strong>کل درآمد:</strong></td>
+                                <td class="text-success">{{ "{:,.0f}".format(financial_data.revenue) }} تومان</td>
+                            </tr>
+                            <tr>
+                                <td><strong>هزینه مواد اولیه:</strong></td>
+                                <td class="text-danger">{{ "{:,.0f}".format(financial_data.materials_cost) }} تومان</td>
+                            </tr>
+                            <tr>
+                                <td><strong>هزینه تولید:</strong></td>
+                                <td class="text-danger">{{ "{:,.0f}".format(financial_data.production_cost) }} تومان</td>
+                            </tr>
+                            <tr>
+                                <td><strong>سایر هزینه‌ها:</strong></td>
+                                <td class="text-danger">{{ "{:,.0f}".format(financial_data.expenses) }} تومان</td>
+                            </tr>
+                            <tr>
+                                <td><strong>حقوق کارگران:</strong></td>
+                                <td class="text-danger">{{ "{:,.0f}".format(financial_data.worker_wages) }} تومان</td>
+                            </tr>
+                            <tr class="table-secondary">
+                                <td><strong>کل هزینه‌ها:</strong></td>
+                                <td class="text-danger"><strong>{{ "{:,.0f}".format(financial_data.total_costs) }} تومان</strong></td>
+                            </tr>
+                            <tr class="{% if financial_data.profit_loss >= 0 %}table-success{% else %}table-danger{% endif %}">
+                                <td><strong>سود/زیان خالص:</strong></td>
+                                <td class="{% if financial_data.profit_loss >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    <strong>{{ "{:,.0f}".format(financial_data.profit_loss) }} تومان</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profit/Loss Chart -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-pie"></i> توزیع هزینه‌ها</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="expenseChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Revenue vs Expenses Trend -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-chart-line"></i> روند درآمد و هزینه</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" style="max-height: 400px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Key Performance Indicators -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="fas fa-tachometer-alt"></i> شاخص‌های کلیدی</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="kpi-card">
+                            <div class="kpi-value">
+                                {% if financial_data.revenue > 0 %}
+                                    {{ "{:.1f}".format((financial_data.profit_loss / financial_data.revenue) * 100) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </div>
+                            <div class="kpi-label">حاشیه سود</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card">
+                            <div class="kpi-value">
+                                {% if financial_data.total_costs > 0 %}
+                                    {{ "{:.1f}".format((financial_data.materials_cost / financial_data.total_costs) * 100) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </div>
+                            <div class="kpi-label">سهم مواد اولیه</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card">
+                            <div class="kpi-value">
+                                {% if financial_data.total_costs > 0 %}
+                                    {{ "{:.1f}".format((financial_data.worker_wages / financial_data.total_costs) * 100) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </div>
+                            <div class="kpi-label">سهم حقوق کارگران</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card">
+                            <div class="kpi-value">
+                                {% if financial_data.revenue > 0 %}
+                                    {{ "{:.1f}".format((financial_data.total_costs / financial_data.revenue) * 100) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </div>
+                            <div class="kpi-label">نسبت هزینه به درآمد</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+<script>
+    // Initialize charts with data
+    const financialData = {{ financial_data | tojson }};
+    const materialsData = {{ materials_by_date | tojson }};
+    const salesData = {{ sales_by_date | tojson }};
+    
+    initializeCharts(financialData, materialsData, salesData);
+</script>
+{% endblock %}

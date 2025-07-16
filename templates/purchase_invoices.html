@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}فاکتورهای خرید{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card section-card">
+            <div class="card-header">
+                <h5><i class="fas fa-file-invoice-dollar"></i> فاکتورهای خرید</h5>
+            </div>
+            <div class="card-body">
+                <!-- فرم ایجاد فاکتور خرید -->
+                <form method="POST" action="{{ url_for('create_purchase_invoice') }}" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="invoice_number" class="form-label">شماره فاکتور *</label>
+                                <input type="text" class="form-control" id="invoice_number" name="invoice_number" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="supplier_name" class="form-label">نام تأمین‌کننده *</label>
+                                <input type="text" class="form-control" id="supplier_name" name="supplier_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="date" class="form-label">تاریخ *</label>
+                                <div class="jalali-date-container">
+                                    <input type="text" class="form-control jalali-date" id="date" name="date" required placeholder="۱۴۰۳/۰۱/۰۱">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="total_amount" class="form-label">مبلغ کل *</label>
+                                <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="discount" class="form-label">تخفیف</label>
+                                <input type="number" class="form-control" id="discount" name="discount" step="0.01" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="tax" class="form-label">مالیات</label>
+                                <input type="number" class="form-control" id="tax" name="tax" step="0.01" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">وضعیت</label>
+                                <select class="form-control" id="status" name="status">
+                                    <option value="معلق">معلق</option>
+                                    <option value="تأیید شده">تأیید شده</option>
+                                    <option value="لغو شده">لغو شده</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">یادداشت</label>
+                                <input type="text" class="form-control" id="notes" name="notes">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus"></i> ایجاد فاکتور خرید
+                    </button>
+                </form>
+
+                <!-- جدول فاکتورهای خرید -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>شماره فاکتور</th>
+                                <th>تأمین‌کننده</th>
+                                <th>تاریخ</th>
+                                <th>مبلغ کل</th>
+                                <th>تخفیف</th>
+                                <th>مالیات</th>
+                                <th>مبلغ نهایی</th>
+                                <th>وضعیت</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in invoices %}
+                            <tr>
+                                <td>{{ invoice.invoice_number }}</td>
+                                <td>{{ invoice.supplier_name }}</td>
+                                <td>{{ invoice.date.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ "{:,.0f}".format(invoice.total_amount) }}</td>
+                                <td>{{ "{:,.0f}".format(invoice.discount) }}</td>
+                                <td>{{ "{:,.0f}".format(invoice.tax) }}</td>
+                                <td class="fw-bold">{{ "{:,.0f}".format(invoice.final_amount) }}</td>
+                                <td>
+                                    <span class="badge bg-{% if invoice.status == 'تأیید شده' %}success{% elif invoice.status == 'لغو شده' %}danger{% else %}warning{% endif %}">
+                                        {{ invoice.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editPurchaseInvoice({{ invoice.id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deletePurchaseInvoice({{ invoice.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">
+                                    هیچ فاکتور خریدی ثبت نشده است
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editPurchaseInvoice(id) {
+    alert('ویرایش فاکتور خرید ' + id + ' - این قابلیت به زودی اضافه خواهد شد');
+}
+
+function deletePurchaseInvoice(id) {
+    if (confirm('آیا از حذف این فاکتور خرید اطمینان دارید؟')) {
+        fetch(`/purchase_invoices/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('خطا در حذف فاکتور: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در حذف فاکتور');
+        });
+    }
+}
+</script>
+{% endblock %}

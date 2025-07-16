@@ -1,0 +1,260 @@
+/* تم تیره برای سیستم حسابداری جعبه‌سازی سیامک */
+
+:root {
+    --dark-bg-primary: #1a1a1a;
+    --dark-bg-secondary: #2d2d2d;
+    --dark-bg-card: #333333;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #cccccc;
+    --dark-border: #444444;
+    --dark-accent: #007bff;
+    --dark-success: #28a745;
+    --dark-warning: #ffc107;
+    --dark-danger: #dc3545;
+    --dark-info: #17a2b8;
+}
+
+.dark-theme {
+    background-color: var(--dark-bg-primary) !important;
+    color: var(--dark-text-primary) !important;
+    transition: all 0.3s ease;
+}
+
+.dark-theme body {
+    background-color: var(--dark-bg-primary) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .navbar {
+    background-color: var(--dark-bg-secondary) !important;
+    border-bottom: 1px solid var(--dark-border) !important;
+}
+
+.dark-theme .navbar-brand,
+.dark-theme .nav-link {
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .nav-link:hover {
+    color: var(--dark-accent) !important;
+}
+
+.dark-theme .card {
+    background-color: var(--dark-bg-card) !important;
+    border: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .card-header {
+    background-color: var(--dark-bg-secondary) !important;
+    border-bottom: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .form-control {
+    background-color: var(--dark-bg-secondary) !important;
+    border: 1px solid var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .form-control:focus {
+    background-color: var(--dark-bg-secondary) !important;
+    border-color: var(--dark-accent) !important;
+    color: var(--dark-text-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.dark-theme .form-control::placeholder {
+    color: var(--dark-text-secondary) !important;
+}
+
+.dark-theme .table {
+    background-color: var(--dark-bg-card) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .table thead th {
+    background-color: var(--dark-bg-secondary) !important;
+    border-color: var(--dark-border) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .table td,
+.dark-theme .table th {
+    border-color: var(--dark-border) !important;
+}
+
+.dark-theme .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark-theme .btn-primary {
+    background-color: var(--dark-accent) !important;
+    border-color: var(--dark-accent) !important;
+}
+
+.dark-theme .btn-success {
+    background-color: var(--dark-success) !important;
+    border-color: var(--dark-success) !important;
+}
+
+.dark-theme .btn-warning {
+    background-color: var(--dark-warning) !important;
+    border-color: var(--dark-warning) !important;
+    color: #000 !important;
+}
+
+.dark-theme .btn-danger {
+    background-color: var(--dark-danger) !important;
+    border-color: var(--dark-danger) !important;
+}
+
+.dark-theme .btn-info {
+    background-color: var(--dark-info) !important;
+    border-color: var(--dark-info) !important;
+}
+
+.dark-theme .stats-card {
+    background: linear-gradient(135deg, var(--dark-bg-card), var(--dark-bg-secondary)) !important;
+    border: 1px solid var(--dark-border) !important;
+}
+
+.dark-theme .revenue-card {
+    border-left: 4px solid var(--dark-success) !important;
+}
+
+.dark-theme .expense-card {
+    border-left: 4px solid var(--dark-danger) !important;
+}
+
+.dark-theme .profit-card {
+    border-left: 4px solid var(--dark-success) !important;
+}
+
+.dark-theme .loss-card {
+    border-left: 4px solid var(--dark-danger) !important;
+}
+
+.dark-theme .info-card {
+    border-left: 4px solid var(--dark-info) !important;
+}
+
+.dark-theme .alert {
+    border: 1px solid var(--dark-border) !important;
+}
+
+.dark-theme .alert-success {
+    background-color: rgba(40, 167, 69, 0.2) !important;
+    border-color: var(--dark-success) !important;
+    color: var(--dark-success) !important;
+}
+
+.dark-theme .alert-danger {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+    border-color: var(--dark-danger) !important;
+    color: var(--dark-danger) !important;
+}
+
+.dark-theme .alert-warning {
+    background-color: rgba(255, 193, 7, 0.2) !important;
+    border-color: var(--dark-warning) !important;
+    color: var(--dark-warning) !important;
+}
+
+.dark-theme .alert-info {
+    background-color: rgba(23, 162, 184, 0.2) !important;
+    border-color: var(--dark-info) !important;
+    color: var(--dark-info) !important;
+}
+
+.dark-theme .modal-content {
+    background-color: var(--dark-bg-card) !important;
+    border: 1px solid var(--dark-border) !important;
+}
+
+.dark-theme .modal-header {
+    border-bottom: 1px solid var(--dark-border) !important;
+}
+
+.dark-theme .modal-footer {
+    border-top: 1px solid var(--dark-border) !important;
+}
+
+.dark-theme .dropdown-menu {
+    background-color: var(--dark-bg-card) !important;
+    border: 1px solid var(--dark-border) !important;
+}
+
+.dark-theme .dropdown-item {
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .dropdown-item:hover {
+    background-color: var(--dark-bg-secondary) !important;
+    color: var(--dark-accent) !important;
+}
+
+/* دکمه تغییر تم در navbar */
+.dark-theme .btn-link {
+    color: var(--dark-text-primary) !important;
+}
+
+.dark-theme .btn-link:hover {
+    color: var(--dark-accent) !important;
+}
+
+/* انیمیشن برای تغییر تم */
+.theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* اسکرول بار تیره */
+.dark-theme ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dark-theme ::-webkit-scrollbar-track {
+    background: var(--dark-bg-primary);
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+    background: var(--dark-border);
+    border-radius: 4px;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-accent);
+}
+
+/* کلاس‌های کمکی برای نمودارها */
+.dark-theme .chart-container {
+    background-color: var(--dark-bg-card) !important;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid var(--dark-border);
+}
+
+/* فیلدهای تاریخ شمسی */
+.dark-theme .jalali-date {
+    direction: ltr;
+    text-align: left;
+    background: linear-gradient(135deg, #2d3748, #4a5568);
+    border-color: #4a5568;
+    color: #ffffff;
+}
+
+.dark-theme .jalali-date:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.15), 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: #2d3748;
+}
+
+.dark-theme .jalali-date::placeholder {
+    direction: rtl;
+    text-align: right;
+    color: #a0aec0;
+}
+
+.dark-theme .jalali-date-container::after {
+    color: #a0aec0;
+}

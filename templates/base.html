@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}داشبورد حسابداری جعبه‌سازی{% endblock %}</title>
+    
+    <!-- Bootstrap RTL CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-box"></i> جعبه‌سازی
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i> داشبورد
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}">
+                            <i class="fas fa-chart-line"></i> گزارشات
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-file-invoice"></i> فاکتورها
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('sales_invoices') }}">فاکتور فروش</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('purchase_invoices') }}">فاکتور خرید</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-money-bill-wave"></i> دریافت و پرداخت
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('receipts') }}">دریافتی‌ها</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('payments') }}">پرداختی‌ها</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-check"></i> چک‌ها
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('cheques') }}">مدیریت چک‌ها</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('installment_cheques') }}">چک‌های اقساطی</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-users"></i> مدیریت
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('customers') }}">مشتریان</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('banks') }}">بانک‌ها</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('budgets') }}">بودجه‌بندی</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'backup_management' %}active{% endif %}" href="{{ url_for('backup_management') }}">
+                            <i class="fas fa-shield-alt"></i> پشتیبان‌گیری
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link btn btn-link text-light border-0" onclick="toggleTheme()">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                            <span id="theme-text" class="d-none d-lg-inline">تم تیره</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; ۱۴۰۳ سیستم حسابداری جعبه‌سازی. تمام حقوق محفوظ است.</p>
+        </div>
+    </footer>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Calendar CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
+    
+    <!-- Custom Jalali Calendar -->
+    <script src="{{ url_for('static', filename='js/jalali-calendar.js') }}"></script>
+    
+    <script>
+        // تم تیره
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            if (body.classList.contains('dark-theme')) {
+                body.classList.remove('dark-theme');
+                themeIcon.className = 'fas fa-moon';
+                themeText.textContent = 'تم تیره';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-theme');
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'تم روشن';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // بارگذاری تم ذخیره شده
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'تم روشن';
+            }
+        });
+        
+        // اضافه کردن انیمیشن برای تغییر تم
+        document.body.classList.add('theme-transition');
+    </script>
+    
+    <script>
+        // تابع‌های عملیات CRUD
+        function deleteCustomer(id) {
+            if (confirm('آیا از حذف این مشتری اطمینان دارید؟')) {
+                fetch(`/customers/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('خطا در حذف مشتری');
+                    }
+                });
+            }
+        }
+        
+        function deleteBank(id) {
+            if (confirm('آیا از حذف این بانک اطمینان دارید؟')) {
+                fetch(`/banks/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('خطا در حذف بانک');
+                    }
+                });
+            }
+        }
+        
+        function deleteBudget(id) {
+            if (confirm('آیا از حذف این بودجه اطمینان دارید؟')) {
+                fetch(`/budgets/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('خطا در حذف بودجه');
+                    }
+                });
+            }
+        }
+        
+        // Modern compact calendar is now handled by jalali-calendar.js
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

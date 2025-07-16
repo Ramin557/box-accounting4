@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}چک‌های اقساطی{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card section-card">
+            <div class="card-header">
+                <h5><i class="fas fa-calendar-check"></i> چک‌های اقساطی</h5>
+            </div>
+            <div class="card-body">
+                <!-- فرم اضافه کردن چک اقساطی -->
+                <form method="POST" action="{{ url_for('installment_cheques') }}" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="customer_id" class="form-label">مشتری *</label>
+                                <select class="form-control" id="customer_id" name="customer_id" required>
+                                    <option value="">انتخاب مشتری</option>
+                                    {% for customer in customers %}
+                                    <option value="{{ customer.id }}">{{ customer.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="total_amount" class="form-label">مبلغ کل *</label>
+                                <input type="number" class="form-control" id="total_amount" name="total_amount" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label for="installment_count" class="form-label">تعداد اقساط *</label>
+                                <input type="number" class="form-control" id="installment_count" name="installment_count" min="1" required>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">تاریخ شروع *</label>
+                                <div class="jalali-date-container">
+                                    <input type="text" class="form-control jalali-date" id="start_date" name="start_date" required placeholder="۱۴۰۳/۰۱/۰۱">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">توضیحات</label>
+                                <input type="text" class="form-control" id="description" name="description">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus"></i> اضافه کردن چک اقساطی
+                    </button>
+                </form>
+
+                <!-- جدول چک‌های اقساطی -->
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>مشتری</th>
+                                <th>مبلغ کل</th>
+                                <th>تعداد اقساط</th>
+                                <th>مبلغ هر قسط</th>
+                                <th>تاریخ شروع</th>
+                                <th>توضیحات</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for installment in installments %}
+                            <tr>
+                                <td>{{ installment.customer.name if installment.customer else '-' }}</td>
+                                <td class="fw-bold">{{ "{:,.0f}".format(installment.total_amount) }} ریال</td>
+                                <td>{{ installment.installment_count }} قسط</td>
+                                <td>{{ "{:,.0f}".format(installment.installment_amount) }} ریال</td>
+                                <td>{{ installment.start_date.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ installment.description or '-' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editInstallmentCheque({{ installment.id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteInstallmentCheque({{ installment.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">
+                                    هیچ چک اقساطی‌ای ثبت نشده است
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editInstallmentCheque(id) {
+    alert('ویرایش چک اقساطی ' + id + ' - این قابلیت به زودی اضافه خواهد شد');
+}
+
+function deleteInstallmentCheque(id) {
+    if (confirm('آیا از حذف این چک اقساطی اطمینان دارید؟')) {
+        fetch(`/installment_cheques/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('خطا در حذف چک اقساطی: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در حذف چک اقساطی');
+        });
+    }
+}
+</script>
+{% endblock %}
