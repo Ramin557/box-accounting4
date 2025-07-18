@@ -35,8 +35,8 @@ def dashboard():
                     return redirect(url_for('dashboard'))
                 
                 # Convert Jalali date to Gregorian
-                gregorian_date = from_jalali(date_str)
-                if not gregorian_date:
+                date_data = from_jalali(date_str)
+                if not date_data:
                     flash('تاریخ وارد شده نامعتبر است', 'error')
                     return redirect(url_for('dashboard'))
                 
@@ -44,7 +44,8 @@ def dashboard():
                     name=name,
                     weight=weight,
                     cost=cost,
-                    date=gregorian_date
+                    date=date_data['gregorian'],
+                    jdate=date_data['jalali']
                 )
                 db.session.add(material)
                 db.session.commit()
@@ -61,8 +62,8 @@ def dashboard():
                     return redirect(url_for('dashboard'))
                 
                 # Convert Jalali date to Gregorian
-                gregorian_date = from_jalali(date_str)
-                if not gregorian_date:
+                date_data = from_jalali(date_str)
+                if not date_data:
                     flash('تاریخ وارد شده نامعتبر است', 'error')
                     return redirect(url_for('dashboard'))
                 
@@ -70,7 +71,8 @@ def dashboard():
                     name=name,
                     count=count,
                     unit_cost=unit_cost,
-                    date=gregorian_date
+                    date=date_data['gregorian'],
+                    jdate=date_data['jalali']
                 )
                 db.session.add(product)
                 db.session.commit()
@@ -87,8 +89,8 @@ def dashboard():
                     return redirect(url_for('dashboard'))
                 
                 # Convert Jalali date to Gregorian
-                gregorian_date = from_jalali(date_str)
-                if not gregorian_date:
+                date_data = from_jalali(date_str)
+                if not date_data:
                     flash('تاریخ وارد شده نامعتبر است', 'error')
                     return redirect(url_for('dashboard'))
                 
@@ -96,7 +98,8 @@ def dashboard():
                     name=name,
                     count=count,
                     unit_price=unit_price,
-                    date=gregorian_date
+                    date=date_data['gregorian'],
+                    jdate=date_data['jalali']
                 )
                 db.session.add(sale)
                 db.session.commit()
@@ -112,15 +115,16 @@ def dashboard():
                     return redirect(url_for('dashboard'))
                 
                 # Convert Jalali date to Gregorian
-                gregorian_date = from_jalali(date_str)
-                if not gregorian_date:
+                date_data = from_jalali(date_str)
+                if not date_data:
                     flash('تاریخ وارد شده نامعتبر است', 'error')
                     return redirect(url_for('dashboard'))
                 
                 expense = Expense(
                     description=description,
                     amount=amount,
-                    date=gregorian_date
+                    date=date_data['gregorian'],
+                    jdate=date_data['jalali']
                 )
                 db.session.add(expense)
                 db.session.commit()
@@ -136,15 +140,16 @@ def dashboard():
                     return redirect(url_for('dashboard'))
                 
                 # Convert Jalali date to Gregorian
-                gregorian_date = from_jalali(date_str)
-                if not gregorian_date:
+                date_data = from_jalali(date_str)
+                if not date_data:
                     flash('تاریخ وارد شده نامعتبر است', 'error')
                     return redirect(url_for('dashboard'))
                 
                 worker = Worker(
                     name=name,
                     amount=amount,
-                    date=gregorian_date
+                    date=date_data['gregorian'],
+                    jdate=date_data['jalali']
                 )
                 db.session.add(worker)
                 db.session.commit()
@@ -464,9 +469,8 @@ def create_sales_invoice():
             date_str = request.form['date']
             
             # تبدیل تاریخ شمسی به میلادی
-            try:
-                date = from_jalali(date_str)
-            except:
+            date_data = from_jalali(date_str)
+            if not date_data:
                 flash('فرمت تاریخ صحیح نیست. از فرمت ۱۴۰۳/۰۱/۰۱ استفاده کنید.', 'error')
                 return redirect(url_for('sales_invoices'))
             
@@ -480,7 +484,8 @@ def create_sales_invoice():
             invoice = SalesInvoice(
                 invoice_number=invoice_number,
                 customer_id=customer_id,
-                date=date,
+                date=date_data['gregorian'],
+                jdate=date_data['jalali'],
                 total_amount=total_amount,
                 discount=discount,
                 tax=tax,
@@ -513,9 +518,8 @@ def create_purchase_invoice():
         date_str = request.form['date']
         
         # تبدیل تاریخ شمسی به میلادی
-        try:
-            date = from_jalali(date_str)
-        except:
+        date_data = from_jalali(date_str)
+        if not date_data:
             flash('فرمت تاریخ صحیح نیست. از فرمت ۱۴۰۳/۰۱/۰۱ استفاده کنید.', 'error')
             return redirect(url_for('purchase_invoices'))
         
@@ -529,7 +533,8 @@ def create_purchase_invoice():
         invoice = PurchaseInvoice(
             invoice_number=invoice_number,
             supplier_name=supplier_name,
-            date=date,
+            date=date_data['gregorian'],
+            jdate=date_data['jalali'],
             total_amount=total_amount,
             discount=discount,
             tax=tax,
@@ -637,10 +642,9 @@ def create_cheque():
         description = request.form.get('description', '')
         
         # تبدیل تاریخ‌های شمسی به میلادی
-        try:
-            issue_date = from_jalali(issue_date_str)
-            due_date = from_jalali(due_date_str)
-        except:
+        issue_date_data = from_jalali(issue_date_str)
+        due_date_data = from_jalali(due_date_str)
+        if not issue_date_data or not due_date_data:
             flash('فرمت تاریخ صحیح نیست. از فرمت ۱۴۰۳/۰۱/۰۱ استفاده کنید.', 'error')
             return redirect(url_for('cheques'))
         
@@ -649,8 +653,10 @@ def create_cheque():
             customer_id=customer_id,
             bank_id=bank_id,
             amount=amount,
-            issue_date=issue_date,
-            due_date=due_date,
+            issue_date=issue_date_data['gregorian'],
+            j_issue_date=issue_date_data['jalali'],
+            due_date=due_date_data['gregorian'],
+            j_due_date=due_date_data['jalali'],
             status=status,
             description=description
         )
@@ -678,13 +684,17 @@ def edit_cheque(cheque_id):
         cheque.description = request.form.get('description', '')
         
         # تبدیل تاریخ‌های شمسی به میلادی
-        try:
-            cheque.issue_date = from_jalali(request.form['issue_date'])
-            cheque.due_date = from_jalali(request.form['due_date'])
-        except:
+        issue_date_data = from_jalali(request.form['issue_date'])
+        due_date_data = from_jalali(request.form['due_date'])
+        if not issue_date_data or not due_date_data:
             flash('فرمت تاریخ صحیح نیست. از فرمت ۱۴۰۳/۰۱/۰۱ استفاده کنید.', 'error')
             return redirect(url_for('cheques'))
         
+        cheque.issue_date = issue_date_data['gregorian']
+        cheque.j_issue_date = issue_date_data['jalali']
+        cheque.due_date = due_date_data['gregorian']
+        cheque.j_due_date = due_date_data['jalali']
+
         db.session.commit()
         flash('چک با موفقیت ویرایش شد!', 'success')
         
@@ -774,13 +784,17 @@ def edit_budget(budget_id):
         budget.description = request.form.get('description', '')
         
         # Convert Jalali dates to Gregorian
-        try:
-            budget.period_start = from_jalali(request.form['period_start'])
-            budget.period_end = from_jalali(request.form['period_end'])
-        except:
+        period_start_data = from_jalali(request.form['period_start'])
+        period_end_data = from_jalali(request.form['period_end'])
+        if not period_start_data or not period_end_data:
             flash('فرمت تاریخ صحیح نیست. از فرمت ۱۴۰۳/۰۱/۰۱ استفاده کنید.', 'error')
             return redirect(url_for('budgets'))
         
+        budget.period_start = period_start_data['gregorian']
+        budget.j_period_start = period_start_data['jalali']
+        budget.period_end = period_end_data['gregorian']
+        budget.j_period_end = period_end_data['jalali']
+
         db.session.commit()
         flash('بودجه با موفقیت ویرایش شد!', 'success')
         
@@ -817,9 +831,8 @@ def installment_cheques():
             description = request.form.get('description', '')
             
             # Convert Jalali date to Gregorian
-            try:
-                start_date = from_jalali(start_date_str)
-            except:
+            start_date_data = from_jalali(start_date_str)
+            if not start_date_data:
                 flash('فرمت تاریخ صحیح نیست. از فرمت ۱۴۰۳/۰۱/۰۱ استفاده کنید.', 'error')
                 return redirect(url_for('installment_cheques'))
             
@@ -831,7 +844,8 @@ def installment_cheques():
                 total_amount=total_amount,
                 installment_count=installment_count,
                 installment_amount=installment_amount,
-                start_date=start_date,
+                start_date=start_date_data['gregorian'],
+                j_start_date=start_date_data['jalali'],
                 description=description
             )
             
@@ -897,18 +911,19 @@ def create_budget():
         description = request.form.get('description', '')
         
         # تبدیل تاریخ‌های شمسی به میلادی
-        try:
-            period_start = from_jalali(period_start_str)
-            period_end = from_jalali(period_end_str)
-        except:
+        period_start_data = from_jalali(period_start_str)
+        period_end_data = from_jalali(period_end_str)
+        if not period_start_data or not period_end_data:
             flash('فرمت تاریخ صحیح نیست. از فرمت ۱۴۰۳/۰۱/۰۱ استفاده کنید.', 'error')
             return redirect(url_for('budgets'))
         
         budget = Budget(
             category=category,
             planned_amount=planned_amount,
-            period_start=period_start,
-            period_end=period_end,
+            period_start=period_start_data['gregorian'],
+            j_period_start=period_start_data['jalali'],
+            period_end=period_end_data['gregorian'],
+            j_period_end=period_end_data['jalali'],
             description=description
         )
         

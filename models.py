@@ -10,6 +10,7 @@ class Material(db.Model):
     weight = db.Column(db.Float, nullable=False, default=0)  # وزن به کیلوگرم
     cost = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
@@ -23,6 +24,7 @@ class Product(db.Model):
     count = db.Column(db.Integer, nullable=False)
     unit_cost = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     @property
@@ -40,6 +42,7 @@ class Sale(db.Model):
     count = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     @property
@@ -56,6 +59,7 @@ class Expense(db.Model):
     description = db.Column(db.String(200), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
@@ -68,6 +72,7 @@ class Worker(db.Model):
     name = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
@@ -111,7 +116,9 @@ class Cheque(db.Model):
     bank_id = db.Column(db.Integer, db.ForeignKey('banks.id'))
     amount = db.Column(db.Float, nullable=False)
     issue_date = db.Column(db.Date, nullable=False)
+    j_issue_date = db.Column(db.String(10), nullable=True)
     due_date = db.Column(db.Date, nullable=False)
+    j_due_date = db.Column(db.String(10), nullable=True)
     status = db.Column(db.String(20), default='در انتظار')  # در انتظار، نقد شده، برگشتی
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -131,6 +138,7 @@ class SalesInvoice(db.Model):
     invoice_number = db.Column(db.String(50), unique=True, nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     total_amount = db.Column(db.Float, nullable=False)
     discount = db.Column(db.Float, default=0.0)
     tax = db.Column(db.Float, default=0.0)
@@ -167,6 +175,7 @@ class PurchaseInvoice(db.Model):
     invoice_number = db.Column(db.String(50), unique=True, nullable=False)
     supplier_name = db.Column(db.String(200), nullable=False)
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     total_amount = db.Column(db.Float, nullable=False)
     discount = db.Column(db.Float, default=0.0)
     tax = db.Column(db.Float, default=0.0)
@@ -198,6 +207,7 @@ class Receipt(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     payment_method = db.Column(db.String(50))  # نقد، چک، انتقال بانکی
     bank_id = db.Column(db.Integer, db.ForeignKey('banks.id'))
     description = db.Column(db.Text)
@@ -216,6 +226,7 @@ class Payment(db.Model):
     recipient = db.Column(db.String(200), nullable=False)  # دریافت کننده
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.Date, nullable=False)
+    jdate = db.Column(db.String(10), nullable=True)
     payment_method = db.Column(db.String(50))
     bank_id = db.Column(db.Integer, db.ForeignKey('banks.id'))
     description = db.Column(db.Text)
@@ -234,6 +245,7 @@ class InstallmentCheque(db.Model):
     installment_count = db.Column(db.Integer, nullable=False)
     installment_amount = db.Column(db.Float, nullable=False)
     start_date = db.Column(db.Date, nullable=False)
+    j_start_date = db.Column(db.String(10), nullable=True)
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -249,7 +261,9 @@ class Budget(db.Model):
     planned_amount = db.Column(db.Float, nullable=False)  # مبلغ برنامه ریزی شده
     actual_amount = db.Column(db.Float, default=0.0)      # مبلغ واقعی
     period_start = db.Column(db.Date, nullable=False)     # شروع دوره
+    j_period_start = db.Column(db.String(10), nullable=True)
     period_end = db.Column(db.Date, nullable=False)       # پایان دوره
+    j_period_end = db.Column(db.String(10), nullable=True)
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

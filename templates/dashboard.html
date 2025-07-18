@@ -92,7 +92,7 @@
                     <td>{{ material.name }}</td>
                     <td>{{ "{:,.1f}".format(material.weight or 0) }} کیلوگرم</td>
                     <td>{{ "{:,.0f}".format(material.cost) }} تومان</td>
-                    <td>{{ to_jalali(material.date) }}</td>
+                    <td>{{ material.jdate }}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="editMaterial({{ material.id }})">
                             <i class="fas fa-edit"></i>
@@ -157,7 +157,7 @@
                     <td>{{ product.name }}</td>
                     <td>{{ product.count }}</td>
                     <td>{{ "{:,.0f}".format(product.unit_cost) }} تومان</td>
-                    <td>{{ to_jalali(product.date) }}</td>
+                    <td>{{ product.jdate }}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="editProduct({{ product.id }})">
                             <i class="fas fa-edit"></i>
@@ -217,7 +217,7 @@
                     <td>{{ sale.name }}</td>
                     <td>{{ sale.count }}</td>
                     <td>{{ "{:,.0f}".format(sale.unit_price) }} تومان</td>
-                    <td>{{ to_jalali(sale.date) }}</td>
+                    <td>{{ sale.jdate }}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="editSale({{ sale.id }})">
                             <i class="fas fa-edit"></i>
@@ -272,7 +272,7 @@
                 <tr>
                     <td>{{ expense.description }}</td>
                     <td>{{ "{:,.0f}".format(expense.amount) }} تومان</td>
-                    <td>{{ to_jalali(expense.date) }}</td>
+                    <td>{{ expense.jdate }}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="editExpense({{ expense.id }})">
                             <i class="fas fa-edit"></i>
@@ -332,7 +332,7 @@
                 <tr>
                     <td>{{ worker.name }}</td>
                     <td>{{ "{:,.0f}".format(worker.amount) }} تومان</td>
-                    <td>{{ to_jalali(worker.date) }}</td>
+                    <td>{{ worker.jdate }}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="editWorker({{ worker.id }})">
                             <i class="fas fa-edit"></i>

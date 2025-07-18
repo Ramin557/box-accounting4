@@ -36,7 +36,7 @@
                                 <td>{{ receipt.receipt_number }}</td>
                                 <td>{{ receipt.customer.name if receipt.customer else '-' }}</td>
                                 <td class="text-success fw-bold">{{ "{:,.0f}".format(receipt.amount) }} ریال</td>
-                                <td>{{ receipt.date.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ receipt.jdate }}</td>
                                 <td>
                                     <span class="badge bg-{% if receipt.payment_method == 'نقد' %}success{% elif receipt.payment_method == 'چک' %}warning{% else %}info{% endif %}">
                                         {{ receipt.payment_method or 'نامشخص' }}

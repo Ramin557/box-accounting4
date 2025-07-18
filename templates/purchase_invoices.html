@@ -96,7 +96,7 @@
                             <tr>
                                 <td>{{ invoice.invoice_number }}</td>
                                 <td>{{ invoice.supplier_name }}</td>
-                                <td>{{ invoice.date.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ invoice.jdate }}</td>
                                 <td>{{ "{:,.0f}".format(invoice.total_amount) }}</td>
                                 <td>{{ "{:,.0f}".format(invoice.discount) }}</td>
                                 <td>{{ "{:,.0f}".format(invoice.tax) }}</td>
