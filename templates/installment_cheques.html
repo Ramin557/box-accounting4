@@ -77,7 +77,7 @@
                                 <td class="fw-bold">{{ "{:,.0f}".format(installment.total_amount) }} ریال</td>
                                 <td>{{ installment.installment_count }} قسط</td>
                                 <td>{{ "{:,.0f}".format(installment.installment_amount) }} ریال</td>
-                                <td>{{ installment.start_date.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ installment.j_start_date }}</td>
                                 <td>{{ installment.description or '-' }}</td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-primary" onclick="editInstallmentCheque({{ installment.id }})">

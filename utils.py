@@ -31,7 +31,7 @@ def to_jalali(date_obj):
         return ''
 
 def from_jalali(jalali_str):
-    """Convert Jalali string to Gregorian date"""
+    """Convert Jalali string to Gregorian date and return both."""
     if not jalali_str:
         return None
     
@@ -42,7 +42,12 @@ def from_jalali(jalali_str):
         
         year, month, day = map(int, parts)
         jalali_date = jdatetime.date(year, month, day)
-        return jalali_date.togregorian()
+        gregorian_date = jalali_date.togregorian()
+
+        return {
+            'gregorian': gregorian_date,
+            'jalali': jalali_str
+        }
     except:
         return None
 

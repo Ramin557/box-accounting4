@@ -105,15 +105,15 @@
                                 <td>{{ cheque.customer.name if cheque.customer else '-' }}</td>
                                 <td>{{ cheque.bank.name if cheque.bank else '-' }}</td>
                                 <td>{{ "{:,.0f}".format(cheque.amount) }} ریال</td>
-                                <td>{{ cheque.issue_date.strftime('%Y/%m/%d') }}</td>
-                                <td>{{ cheque.due_date.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ cheque.j_issue_date }}</td>
+                                <td>{{ cheque.j_due_date }}</td>
                                 <td>
                                     <span class="badge bg-{% if cheque.status == 'نقد شده' %}success{% elif cheque.status == 'برگشتی' %}danger{% else %}warning{% endif %}">
                                         {{ cheque.status }}
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editCheque({{ cheque.id }}, '{{ cheque.cheque_number }}', {{ cheque.customer_id }}, {{ cheque.bank_id }}, {{ cheque.amount }}, '{{ cheque.issue_date.strftime('%Y/%m/%d') }}', '{{ cheque.due_date.strftime('%Y/%m/%d') }}', '{{ cheque.status }}', '{{ cheque.description or '' }}')">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editCheque({{ cheque.id }}, '{{ cheque.cheque_number }}', {{ cheque.customer_id }}, {{ cheque.bank_id }}, {{ cheque.amount }}, '{{ cheque.j_issue_date }}', '{{ cheque.j_due_date }}', '{{ cheque.status }}', '{{ cheque.description or '' }}')">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-success" onclick="toggleChequeStatus({{ cheque.id }}, '{{ cheque.status }}')">

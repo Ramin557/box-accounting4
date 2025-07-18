@@ -36,7 +36,7 @@
                                 <td>{{ payment.payment_number }}</td>
                                 <td>{{ payment.recipient }}</td>
                                 <td class="text-danger fw-bold">{{ "{:,.0f}".format(payment.amount) }} ریال</td>
-                                <td>{{ payment.date.strftime('%Y/%m/%d') }}</td>
+                                <td>{{ payment.jdate }}</td>
                                 <td>
                                     <span class="badge bg-{% if payment.payment_method == 'نقد' %}success{% elif payment.payment_method == 'چک' %}warning{% else %}info{% endif %}">
                                         {{ payment.payment_method or 'نامشخص' }}
